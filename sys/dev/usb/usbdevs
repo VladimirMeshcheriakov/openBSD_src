@@ -637,6 +637,7 @@ vendor ARDUINO		0x2341	Arduino SA
 vendor TPLINK		0x2357	TP-Link
 vendor WMR		0x2405	West Mountain Radio
 vendor TRIPPLITE	0x2478	Tripp-Lite
+vendor GAOMON		0x256c	Gaomon
 vendor HAILUCK		0x258a	HAILUCK Co., Ltd
 vendor ARUBA		0x2626	Aruba
 vendor XIAOMI		0x2717	Xiaomi
@@ -2107,6 +2108,9 @@ product GARMIN GPSMAP60CSX	0x0003	GPSmap 60Csx
 product GARMIN IQUE3600		0x0004	Ique 3600
 product GARMIN DAKOTA20		0x23c0	Dakota 20
 product GARMIN GPSMAP62S	0x2459	GPSmap 62s
+
+/* Gaomon */
+product GAOMON M10K		0x006e	M10K
 
 /* GCT Semiconductor products */
 product GCTSEMICON INSTALL	0x7f40	GDM720x MASS storage mode	
@@ -4632,6 +4636,7 @@ product WACOM INTUOS_DRAW	0x033b	Intuos Draw (CTL-490)
 product WACOM ONE_S		0x037a	One S (CTL-472)
 product WACOM ONE_M		0x037b	One M (CTL-672)
 product WACOM INTUOS_PRO_S	0x0392	Intuos Pro S
+product WACOM INTUOS_S      0x0374  Intuos S (CTL-4100)
 
 /* WAGO Kontakttechnik products */
 product WAGO SERVICECABLE	0x07a6	Service Cable 750-923

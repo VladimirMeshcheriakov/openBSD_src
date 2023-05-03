@@ -657,3 +657,51 @@ hid_is_collection(const void *desc, int size, uint8_t id, int32_t usage)
 	hid_end_parse(hd);
 	return (0);
 }
+
+
+
+struct hid_data *
+hid_get_collection_data(const void *desc, int size, int32_t usage, uint32_t collection)
+{
+	struct hid_data *hd;
+	struct hid_item hi;
+
+	hd = hid_start_parse(desc, size, hid_all);
+
+	DPRINTF("%s: usage=0x%x\n", __func__, usage);
+	while (hid_get_item(hd, &hi)) {
+		DPRINTF("%s: kind=%d id=%d usage=0x%x(0x%x)\n", __func__,
+			    hi.kind, hi.report_ID, hi.usage, usage);
+		if (hi.kind == hid_collection &&
+		    hi.collection == collection && hi.usage == usage){
+			DPRINTF("%s: found\n", __func__);
+			return hd;
+		}
+	}
+	DPRINTF("%s: not found\n", __func__);
+	hid_end_parse(hd);
+	return NULL;
+}
+
+int
+hid_get_id_of_collection(const void *desc, int size, int32_t usage, uint32_t collection)
+{
+	struct hid_data *hd;
+	struct hid_item hi;
+
+	hd = hid_start_parse(desc, size, hid_all);
+
+	DPRINTF("%s: id=%d usage=0x%x\n", __func__, id, usage);
+	while (hid_get_item(hd, &hi)) {
+		DPRINTF("%s: kind=%d id=%d usage=0x%x(0x%x)\n", __func__,
+			    hi.kind, hi.report_ID, hi.usage, usage);
+		if (hi.kind == hid_collection &&
+		    hi.collection == collection && hi.usage == usage){
+			DPRINTF("%s: found\n", __func__);
+			return hi.report_ID;
+		}
+	}
+	DPRINTF("%s: not found\n", __func__);
+	hid_end_parse(hd);
+	return 0;
+}

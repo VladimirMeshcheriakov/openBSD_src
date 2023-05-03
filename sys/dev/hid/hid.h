@@ -94,6 +94,8 @@ int32_t	hid_get_data(const uint8_t *buf, int, struct hid_location *);
 uint32_t hid_get_udata(const uint8_t *buf, int, struct hid_location *);
 int	hid_is_collection(const void *, int, uint8_t, int32_t);
 
+struct hid_data *	hid_get_collection_data(const void *, int, int32_t, uint32_t);
+int hid_get_id_of_collection(const void *desc, int size, int32_t usage, uint32_t collection);
 #endif /* _KERNEL */
 
 /* Usage pages */
@@ -353,6 +355,7 @@ int	hid_is_collection(const void *, int, uint8_t, int32_t);
 #define HUD_TOUCHSCREEN		0x0004
 #define HUD_TOUCHPAD		0x0005
 #define HUD_CONFIG		0x000e
+#define HUD_STYLUS		0x0020
 #define HUD_FINGER		0x0022
 #define HUD_TIP_PRESSURE	0x0030
 #define HUD_BARREL_PRESSURE	0x0031
@@ -386,7 +389,13 @@ int	hid_is_collection(const void *, int, uint8_t, int32_t);
 #define HUD_CONTACTCOUNT	0x0054
 #define HUD_CONTACT_MAX		0x0055
 #define HUD_SCAN_TIME		0x0056
-#define HUD_BUTTON_TYPE		0x0059
+#define HUD_SECONDARY_BARREL_SWITCH 0x005A
+#define HUD_BUTTON_TYPE        0x0059
+#define HUD_WACOM_X            0x0130
+#define HUD_WACOM_Y            0x0131
+#define HUD_WACOM_DISTANCE    0x0132
+#define HUD_WACOM_PAD_BUTTONS00    0x0910
+#define HUD_WACOM_BATTERY		0x1013
 
 /* Usages, LED */
 #define HUL_NUM_LOCK		0x0001
