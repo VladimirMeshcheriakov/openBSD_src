@@ -49,27 +49,19 @@
 #include <dev/hid/hidmsvar.h>
 
 #ifdef HIDMS_DEBUG
-#define DPRINTF(x)                                                           \
-	do {                                                                 \
-		if (hidmsdebug)                                              \
-			printf x;                                            \
-	} while (0)
-#define DPRINTFN(n, x)                                                       \
-	do {                                                                 \
-		if (hidmsdebug > (n))                                        \
-			printf x;                                            \
-	} while (0)					     
-
-int hidmsdebug = 0;
+#define DPRINTF(x)	do { if (hidmsdebug) printf x; } while (0)
+#define DPRINTFN(n,x)	do { if (hidmsdebug>(n)) printf x; } while (0)
+int	hidmsdebug = 0;
 #else
 #define DPRINTF(x)
-#define DPRINTFN(n, x)
+#define DPRINTFN(n,x)
 #endif
 
-#define HIDMS_BUT(i) ((i) == 1 || (i) == 2 ? 3 - (i) : i)
+#define HIDMS_BUT(i)	((i) == 1 || (i) == 2 ? 3 - (i) : i)
 
-#define MOUSE_FLAGS_MASK (HIO_CONST | HIO_RELATIVE)
-#define NOTMOUSE(f) (((f)&MOUSE_FLAGS_MASK) != HIO_RELATIVE)
+#define MOUSE_FLAGS_MASK	(HIO_CONST | HIO_RELATIVE)
+#define NOTMOUSE(f)		(((f) & MOUSE_FLAGS_MASK) != HIO_RELATIVE)
+
 
 int
 stylus_hid_parse(struct hidms *ms, struct hid_data *d, uint32_t *flags) {
@@ -282,9 +274,11 @@ hidms_wacom_setup(struct device *self, struct hidms *ms, uint32_t quirks,
 	return 0;
 }
 
+
 int
-hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
-	void *desc, int dlen) {
+hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks,
+    int id, void *desc, int dlen)
+{
 	struct hid_item h;
 	struct hid_data *d;
 	uint32_t flags;
@@ -294,15 +288,16 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 	ms->sc_rawmode = 1;
 
 	ms->sc_flags = quirks;
+
 	/* We are setting up a WACOM tablet, not a mouse */
 	if (quirks == HIDMS_WACOM_SETUP)
 		return hidms_wacom_setup(self, ms, quirks, id, desc, dlen);
 
-	if (!hid_locate(desc, dlen, HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_X),
-		    id, hid_input, &ms->sc_loc_x, &flags))
+	if (!hid_locate(desc, dlen, HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_X), id,
+	    hid_input, &ms->sc_loc_x, &flags))
 		ms->sc_loc_x.size = 0;
 
-	switch (flags & MOUSE_FLAGS_MASK) {
+	switch(flags & MOUSE_FLAGS_MASK) {
 	case 0:
 		ms->sc_flags |= HIDMS_ABSX;
 		break;
@@ -310,15 +305,15 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 		break;
 	default:
 		printf("\n%s: X report 0x%04x not supported\n",
-			self->dv_xname, flags);
+		    self->dv_xname, flags);
 		return ENXIO;
 	}
 
-	if (!hid_locate(desc, dlen, HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Y),
-		    id, hid_input, &ms->sc_loc_y, &flags))
+	if (!hid_locate(desc, dlen, HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Y), id,
+	    hid_input, &ms->sc_loc_y, &flags))
 		ms->sc_loc_y.size = 0;
 
-	switch (flags & MOUSE_FLAGS_MASK) {
+	switch(flags & MOUSE_FLAGS_MASK) {
 	case 0:
 		ms->sc_flags |= HIDMS_ABSY;
 		break;
@@ -326,7 +321,7 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 		break;
 	default:
 		printf("\n%s: Y report 0x%04x not supported\n",
-			self->dv_xname, flags);
+		    self->dv_xname, flags);
 		return ENXIO;
 	}
 
@@ -336,19 +331,19 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 	 */
 
 	wheel = hid_locate(desc, dlen,
-		HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_WHEEL), id, hid_input,
-		&ms->sc_loc_z, &flags);
+	    HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_WHEEL), id,
+	    hid_input, &ms->sc_loc_z, &flags);
 	if (wheel == 0)
 		twheel = hid_locate(desc, dlen,
-			HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_TWHEEL), id,
-			hid_input, &ms->sc_loc_z, &flags);
+		    HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_TWHEEL), id,
+		    hid_input, &ms->sc_loc_z, &flags);
 	else
 		twheel = 0;
 
 	if (wheel || twheel) {
 		if (NOTMOUSE(flags)) {
 			DPRINTF(("\n%s: Wheel report 0x%04x not supported\n",
-				self->dv_xname, flags));
+			    self->dv_xname, flags));
 			ms->sc_loc_z.size = 0; /* Bad Z coord, ignore it */
 		} else {
 			ms->sc_flags |= HIDMS_Z;
@@ -363,27 +358,27 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 		 * on some newer mice.
 		 */
 		if (hid_locate(desc, dlen,
-			    HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Z), id,
-			    hid_input, &ms->sc_loc_w, &flags)) {
+		    HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Z), id,
+		    hid_input, &ms->sc_loc_w, &flags)) {
 			if (NOTMOUSE(flags)) {
-				DPRINTF(("\n%s: Z report 0x%04x not "
-					 "supported\n",
-					self->dv_xname, flags));
+				DPRINTF(("\n%s: Z report 0x%04x not supported\n",
+				    self->dv_xname, flags));
 				/* Bad Z coord, ignore it */
 				ms->sc_loc_w.size = 0;
-			} else
+			}
+			else
 				ms->sc_flags |= HIDMS_W;
 		} else if (hid_locate(desc, dlen,
-				   HID_USAGE2(HUP_CONSUMER, HUC_AC_PAN), id,
-				   hid_input, &ms->sc_loc_w, &flags)) {
+		    HID_USAGE2(HUP_CONSUMER, HUC_AC_PAN), id, hid_input,
+		    &ms->sc_loc_w, &flags)) {
 			ms->sc_flags |= HIDMS_W;
 		}
 	} else if (hid_locate(desc, dlen,
-			   HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Z), id,
-			   hid_input, &ms->sc_loc_z, &flags)) {
+	    HID_USAGE2(HUP_GENERIC_DESKTOP, HUG_Z), id,
+	    hid_input, &ms->sc_loc_z, &flags)) {
 		if (NOTMOUSE(flags)) {
 			DPRINTF(("\n%s: Z report 0x%04x not supported\n",
-				self->dv_xname, flags));
+			    self->dv_xname, flags));
 			ms->sc_loc_z.size = 0; /* Bad Z coord, ignore it */
 		} else {
 			ms->sc_flags |= HIDMS_Z;
@@ -408,11 +403,11 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 	/* figure out the number of buttons */
 	for (i = 1; i <= MAX_BUTTONS; i++)
 		if (!hid_locate(desc, dlen, HID_USAGE2(HUP_BUTTON, i), id,
-			    hid_input, &ms->sc_loc_btn[i - 1], NULL))
+		    hid_input, &ms->sc_loc_btn[i - 1], NULL))
 			break;
 	ms->sc_num_buttons = i - 1;
 
-	/*
+	/* 
 	 * The Kensington Slimblade reports some of its buttons as binary
 	 * inputs in the first vendor usage page (0xff00). Add such inputs
 	 * as buttons if the device has this quirk.
@@ -420,37 +415,33 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 	if (ms->sc_flags & HIDMS_VENDOR_BUTTONS) {
 		for (i = 1; ms->sc_num_buttons < MAX_BUTTONS; i++) {
 			if (!hid_locate(desc, dlen,
-				    HID_USAGE2(HUP_MICROSOFT, i), id,
-				    hid_input,
-				    &ms->sc_loc_btn[ms->sc_num_buttons],
-				    NULL))
+			    HID_USAGE2(HUP_MICROSOFT, i), id, hid_input,
+			    &ms->sc_loc_btn[ms->sc_num_buttons], NULL))
 				break;
 			ms->sc_num_buttons++;
 		}
 	}
 
-	if (ms->sc_num_buttons < MAX_BUTTONS
-		&& hid_locate(desc, dlen,
-			HID_USAGE2(HUP_DIGITIZERS, HUD_TIP_SWITCH), id,
-			hid_input, &ms->sc_loc_btn[ms->sc_num_buttons],
-			NULL)) {
+	if (ms->sc_num_buttons < MAX_BUTTONS &&
+	    hid_locate(desc, dlen, HID_USAGE2(HUP_DIGITIZERS,
+	    HUD_TIP_SWITCH), id, hid_input,
+	    &ms->sc_loc_btn[ms->sc_num_buttons], NULL)){
 		ms->sc_flags |= HIDMS_TIP;
 		ms->sc_num_buttons++;
 	}
 
-	if (ms->sc_num_buttons < MAX_BUTTONS
-		&& hid_locate(desc, dlen,
-			HID_USAGE2(HUP_DIGITIZERS, HUD_ERASER), id, hid_input,
-			&ms->sc_loc_btn[ms->sc_num_buttons], NULL)) {
+	if (ms->sc_num_buttons < MAX_BUTTONS &&
+	    hid_locate(desc, dlen, HID_USAGE2(HUP_DIGITIZERS,
+	    HUD_ERASER), id, hid_input,
+	    &ms->sc_loc_btn[ms->sc_num_buttons], NULL)){
 		ms->sc_flags |= HIDMS_ERASER;
 		ms->sc_num_buttons++;
 	}
 
-	if (ms->sc_num_buttons < MAX_BUTTONS
-		&& hid_locate(desc, dlen,
-			HID_USAGE2(HUP_DIGITIZERS, HUD_BARREL_SWITCH), id,
-			hid_input, &ms->sc_loc_btn[ms->sc_num_buttons],
-			NULL)) {
+	if (ms->sc_num_buttons < MAX_BUTTONS &&
+	    hid_locate(desc, dlen, HID_USAGE2(HUP_DIGITIZERS,
+	    HUD_BARREL_SWITCH), id, hid_input,
+	    &ms->sc_loc_btn[ms->sc_num_buttons], NULL)){
 		ms->sc_flags |= HIDMS_BARREL;
 		ms->sc_num_buttons++;
 	}
@@ -477,11 +468,11 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 	/* Parse descriptors to get touch panel bounds */
 	d = hid_start_parse(desc, dlen, hid_input);
 	while (hid_get_item(d, &h)) {
-		if (h.kind != hid_input
-			|| HID_GET_USAGE_PAGE(h.usage) != HUP_GENERIC_DESKTOP)
+		if (h.kind != hid_input ||
+		    HID_GET_USAGE_PAGE(h.usage) != HUP_GENERIC_DESKTOP)
 			continue;
-		DPRINTF(("hidms: usage=0x%x range %d..%d\n", h.usage,
-			h.logical_minimum, h.logical_maximum));
+		DPRINTF(("hidms: usage=0x%x range %d..%d\n",
+			h.usage, h.logical_minimum, h.logical_maximum));
 		switch (HID_GET_USAGE(h.usage)) {
 		case HUG_X:
 			if (ms->sc_flags & HIDMS_ABSX) {
@@ -502,14 +493,15 @@ hidms_setup(struct device *self, struct hidms *ms, uint32_t quirks, int id,
 }
 
 void
-hidms_attach(struct hidms *ms, const struct wsmouse_accessops *ops) {
+hidms_attach(struct hidms *ms, const struct wsmouse_accessops *ops)
+{
 	struct wsmousedev_attach_args a;
 #ifdef HIDMS_DEBUG
 	int i;
 #endif
 
-	printf(": %d button%s", ms->sc_num_buttons,
-		ms->sc_num_buttons == 1 ? "" : "s");
+	printf(": %d button%s",
+	    ms->sc_num_buttons, ms->sc_num_buttons == 1 ? "" : "s");
 	switch (ms->sc_flags & (HIDMS_Z | HIDMS_W)) {
 	case HIDMS_Z:
 		printf(", Z dir");
@@ -533,20 +525,19 @@ hidms_attach(struct hidms *ms, const struct wsmouse_accessops *ops) {
 
 #ifdef HIDMS_DEBUG
 	DPRINTF(("hidms_attach: ms=%p\n", ms));
-	DPRINTF(("hidms_attach: X\t%d/%d\n", ms->sc_loc_x.pos,
-		ms->sc_loc_x.size));
-	DPRINTF(("hidms_attach: Y\t%d/%d\n", ms->sc_loc_y.pos,
-		ms->sc_loc_y.size));
+	DPRINTF(("hidms_attach: X\t%d/%d\n",
+	     ms->sc_loc_x.pos, ms->sc_loc_x.size));
+	DPRINTF(("hidms_attach: Y\t%d/%d\n",
+	    ms->sc_loc_y.pos, ms->sc_loc_y.size));
 	if (ms->sc_flags & HIDMS_Z)
-		DPRINTF(("hidms_attach: Z\t%d/%d\n", ms->sc_loc_z.pos,
-			ms->sc_loc_z.size));
+		DPRINTF(("hidms_attach: Z\t%d/%d\n",
+		    ms->sc_loc_z.pos, ms->sc_loc_z.size));
 	if (ms->sc_flags & HIDMS_W)
-		DPRINTF(("hidms_attach: W\t%d/%d\n", ms->sc_loc_w.pos,
-			ms->sc_loc_w.size));
+		DPRINTF(("hidms_attach: W\t%d/%d\n",
+		    ms->sc_loc_w.pos, ms->sc_loc_w.size));
 	for (i = 1; i <= ms->sc_num_buttons; i++) {
-		DPRINTF(("hidms_attach: B%d\t%d/%d\n", i,
-			ms->sc_loc_btn[i - 1].pos,
-			ms->sc_loc_btn[i - 1].size));
+		DPRINTF(("hidms_attach: B%d\t%d/%d\n",
+		    i, ms->sc_loc_btn[i - 1].pos, ms->sc_loc_btn[i - 1].size));
 	}
 #endif
 
@@ -556,13 +547,13 @@ hidms_attach(struct hidms *ms, const struct wsmouse_accessops *ops) {
 }
 
 int
-hidms_detach(struct hidms *ms, int flags) {
+hidms_detach(struct hidms *ms, int flags)
+{
 	int rv = 0;
 
 	DPRINTF(("hidms_detach: ms=%p flags=%d\n", ms, flags));
 
-	/* No need to do reference counting of hidms, wsmouse has all the goo
-	 */
+	/* No need to do reference counting of hidms, wsmouse has all the goo */
 	if (ms->sc_wsmousedev != NULL)
 		rv = config_detach(ms->sc_wsmousedev, flags);
 
@@ -570,12 +561,13 @@ hidms_detach(struct hidms *ms, int flags) {
 }
 
 void
-hidms_input(struct hidms *ms, uint8_t *data, u_int len) {
+hidms_input(struct hidms *ms, uint8_t *data, u_int len)
+{
 	int dx, dy, dz, dw;
 	u_int32_t buttons = 0;
 	int i, s;
 
-	DPRINTFN(5, ("hidms_input: len=%d\n", len));
+	DPRINTFN(5,("hidms_input: len=%d\n", len));
 
 	/*
 	 * The Microsoft Wireless Intellimouse 2.0 sends one extra leading
@@ -599,10 +591,10 @@ hidms_input(struct hidms *ms, uint8_t *data, u_int len) {
 			return;
 	}
 
-	dx = hid_get_data(data, len, &ms->sc_loc_x);
+	dx =  hid_get_data(data, len, &ms->sc_loc_x);
 	dy = -hid_get_data(data, len, &ms->sc_loc_y);
-	dz = hid_get_data(data, len, &ms->sc_loc_z);
-	dw = hid_get_data(data, len, &ms->sc_loc_w);
+	dz =  hid_get_data(data, len, &ms->sc_loc_z);
+	dw =  hid_get_data(data, len, &ms->sc_loc_w);
 
 	if (ms->sc_flags & HIDMS_ABSY)
 		dy = -dy;
@@ -617,47 +609,47 @@ hidms_input(struct hidms *ms, uint8_t *data, u_int len) {
 		dy = tmp;
 	}
 
-	if (!ms->sc_rawmode
-		&& (ms->sc_tsscale.maxx - ms->sc_tsscale.minx) != 0
-		&& (ms->sc_tsscale.maxy - ms->sc_tsscale.miny) != 0) {
+	if (!ms->sc_rawmode &&
+	    (ms->sc_tsscale.maxx - ms->sc_tsscale.minx) != 0 &&
+	    (ms->sc_tsscale.maxy - ms->sc_tsscale.miny) != 0) {
 		/* Scale down to the screen resolution. */
-		dx = ((dx - ms->sc_tsscale.minx) * ms->sc_tsscale.resx)
-			/ (ms->sc_tsscale.maxx - ms->sc_tsscale.minx);
-		dy = ((dy - ms->sc_tsscale.miny) * ms->sc_tsscale.resy)
-			/ (ms->sc_tsscale.maxy - ms->sc_tsscale.miny);
+		dx = ((dx - ms->sc_tsscale.minx) * ms->sc_tsscale.resx) /
+		    (ms->sc_tsscale.maxx - ms->sc_tsscale.minx);
+		dy = ((dy - ms->sc_tsscale.miny) * ms->sc_tsscale.resy) /
+		    (ms->sc_tsscale.maxy - ms->sc_tsscale.miny);
 	}
 
 	for (i = 0; i < ms->sc_num_buttons; i++)
 		if (hid_get_data(data, len, &ms->sc_loc_btn[i]))
 			buttons |= (1 << HIDMS_BUT(i));
 
-	if (dx != 0 || dy != 0 || dz != 0 || dw != 0
-		|| buttons != ms->sc_buttons) {
-		DPRINTFN(10,
-			("hidms_input: x:%d y:%d z:%d w:%d buttons:0x%x\n",
-				dx, dy, dz, dw, buttons));
+	if (dx != 0 || dy != 0 || dz != 0 || dw != 0 ||
+	    buttons != ms->sc_buttons) {
+		DPRINTFN(10, ("hidms_input: x:%d y:%d z:%d w:%d buttons:0x%x\n",
+			dx, dy, dz, dw, buttons));
 		ms->sc_buttons = buttons;
 		if (ms->sc_wsmousedev != NULL) {
 			s = spltty();
 			if (ms->sc_flags & HIDMS_ABSX) {
-				wsmouse_set(ms->sc_wsmousedev, WSMOUSE_ABS_X,
-					dx, 0);
+				wsmouse_set(ms->sc_wsmousedev,
+				    WSMOUSE_ABS_X, dx, 0);
 				dx = 0;
 			}
 			if (ms->sc_flags & HIDMS_ABSY) {
-				wsmouse_set(ms->sc_wsmousedev, WSMOUSE_ABS_Y,
-					dy, 0);
+				wsmouse_set(ms->sc_wsmousedev,
+				    WSMOUSE_ABS_Y, dy, 0);
 				dy = 0;
 			}
-			WSMOUSE_INPUT(
-				ms->sc_wsmousedev, buttons, dx, dy, dz, dw);
+			WSMOUSE_INPUT(ms->sc_wsmousedev,
+			    buttons, dx, dy, dz, dw);
 			splx(s);
 		}
 	}
 }
 
 int
-hidms_enable(struct hidms *ms) {
+hidms_enable(struct hidms *ms)
+{
 	if (ms->sc_enabled)
 		return EBUSY;
 
@@ -668,21 +660,22 @@ hidms_enable(struct hidms *ms) {
 
 int
 hidms_ioctl(struct hidms *ms, u_long cmd, caddr_t data, int flag,
-	struct proc *p) {
+    struct proc *p)
+{
 	struct wsmouse_calibcoords *wsmc = (struct wsmouse_calibcoords *)data;
 
 	switch (cmd) {
 	case WSMOUSEIO_SCALIBCOORDS:
-		if (!(wsmc->minx >= -32768 && wsmc->maxx >= -32768
-			    && wsmc->miny >= -32768 && wsmc->maxy >= -32768
-			    && wsmc->resx >= 0 && wsmc->resy >= 0
-			    && wsmc->minx < 32768 && wsmc->maxx < 32768
-			    && wsmc->miny < 32768 && wsmc->maxy < 32768
-			    && (wsmc->maxx - wsmc->minx) != 0
-			    && (wsmc->maxy - wsmc->miny) != 0
-			    && wsmc->resx < 32768 && wsmc->resy < 32768
-			    && wsmc->swapxy >= 0 && wsmc->swapxy <= 1
-			    && wsmc->samplelen >= 0 && wsmc->samplelen <= 1))
+		if (!(wsmc->minx >= -32768 && wsmc->maxx >= -32768 &&
+		    wsmc->miny >= -32768 && wsmc->maxy >= -32768 &&
+		    wsmc->resx >= 0 && wsmc->resy >= 0 &&
+		    wsmc->minx < 32768 && wsmc->maxx < 32768 &&
+		    wsmc->miny < 32768 && wsmc->maxy < 32768 &&
+		    (wsmc->maxx - wsmc->minx) != 0 &&
+		    (wsmc->maxy - wsmc->miny) != 0 &&
+		    wsmc->resx < 32768 && wsmc->resy < 32768 &&
+		    wsmc->swapxy >= 0 && wsmc->swapxy <= 1 &&
+		    wsmc->samplelen >= 0 && wsmc->samplelen <= 1))
 			return (EINVAL);
 
 		ms->sc_tsscale.minx = wsmc->minx;
@@ -716,6 +709,7 @@ hidms_ioctl(struct hidms *ms, u_long cmd, caddr_t data, int flag,
 }
 
 void
-hidms_disable(struct hidms *ms) {
+hidms_disable(struct hidms *ms)
+{
 	ms->sc_enabled = 0;
 }

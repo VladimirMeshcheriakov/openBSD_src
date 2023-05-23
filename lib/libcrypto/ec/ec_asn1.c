@@ -1,4 +1,4 @@
-/* $OpenBSD: ec_asn1.c,v 1.43 2023/05/03 06:30:11 tb Exp $ */
+/* $OpenBSD: ec_asn1.c,v 1.45 2023/05/04 05:59:38 tb Exp $ */
 /*
  * Written by Nils Larsch for the OpenSSL project.
  */
@@ -615,7 +615,7 @@ EC_PRIVATEKEY_free(EC_PRIVATEKEY *a)
 
 /* some declarations of internal function */
 
-/* ec_asn1_group2field() sets the values in a X9_62_FIELDID object */
+/* ec_asn1_group2fieldid() sets the values in a X9_62_FIELDID object */
 static int ec_asn1_group2fieldid(const EC_GROUP *, X9_62_FIELDID *);
 /* ec_asn1_group2curve() sets the values in a X9_62_CURVE object */
 static int ec_asn1_group2curve(const EC_GROUP *, X9_62_CURVE *);
@@ -908,8 +908,8 @@ ec_asn1_group2pkparameters(const EC_GROUP *group, ECPKPARAMETERS *params)
 	} else {
 		/* use the ECPARAMETERS structure */
 		ret->type = 1;
-		if ((ret->value.parameters = ec_asn1_group2parameters(
-			    group, NULL)) == NULL)
+		if ((ret->value.parameters = ec_asn1_group2parameters(group,
+		    NULL)) == NULL)
 			ok = 0;
 	}
 

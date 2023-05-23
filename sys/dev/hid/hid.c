@@ -658,8 +658,6 @@ hid_is_collection(const void *desc, int size, uint8_t id, int32_t usage)
 	return (0);
 }
 
-
-
 struct hid_data *
 hid_get_collection_data(const void *desc, int size, int32_t usage, uint32_t collection)
 {

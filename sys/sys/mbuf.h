@@ -1,4 +1,4 @@
-/*	$OpenBSD: mbuf.h,v 1.255 2022/08/15 16:15:37 bluhm Exp $	*/
+/*	$OpenBSD: mbuf.h,v 1.257 2023/05/10 12:07:17 bluhm Exp $	*/
 /*	$NetBSD: mbuf.h,v 1.19 1996/02/09 18:25:14 christos Exp $	*/
 
 /*
@@ -129,12 +129,13 @@ struct	pkthdr {
 	SLIST_HEAD(, m_tag)	 ph_tags;	/* list of packet tags */
 	int64_t			 ph_timestamp;	/* packet timestamp */
 	int			 len;		/* total packet length */
+	u_int			 ph_rtableid;	/* routing table id */
+	u_int			 ph_ifidx;	/* rcv interface index */
 	u_int16_t		 ph_tagsset;	/* mtags attached */
 	u_int16_t		 ph_flowid;	/* pseudo unique flow id */
 	u_int16_t		 csum_flags;	/* checksum flags */
 	u_int16_t		 ether_vtag;	/* Ethernet 802.1p+Q vlan tag */
-	u_int			 ph_rtableid;	/* routing table id */
-	u_int			 ph_ifidx;	/* rcv interface index */
+	u_int16_t		 ph_mss;	/* TCP max segment size */
 	u_int8_t		 ph_loopcnt;	/* mbuf is looping in kernel */
 	u_int8_t		 ph_family;	/* af, used when queueing */
 	struct pkthdr_pf	 pf;
@@ -226,6 +227,7 @@ struct mbuf {
 #define	M_IPV6_DF_OUT		0x1000	/* don't fragment outgoing IPv6 */
 #define	M_TIMESTAMP		0x2000	/* ph_timestamp is set */
 #define	M_FLOWID		0x4000	/* ph_flowid is set */
+#define	M_TCP_TSO		0x8000	/* TCP Segmentation Offload needed */
 
 #ifdef _KERNEL
 #define MCS_BITS \
@@ -526,6 +528,8 @@ unsigned int		ml_hdatalen(struct mbuf_list *);
  * mbuf queues
  */
 
+#include <sys/atomic.h>
+
 #define MBUF_QUEUE_INITIALIZER(_maxlen, _ipl) \
     { MUTEX_INITIALIZER(_ipl), MBUF_LIST_INITIALIZER(), (_maxlen), 0 }
 
@@ -538,12 +542,12 @@ void			mq_delist(struct mbuf_queue *, struct mbuf_list *);
 struct mbuf *		mq_dechain(struct mbuf_queue *);
 unsigned int		mq_purge(struct mbuf_queue *);
 unsigned int		mq_hdatalen(struct mbuf_queue *);
+void			mq_set_maxlen(struct mbuf_queue *, u_int);
 
-#define	mq_len(_mq)		ml_len(&(_mq)->mq_list)
-#define	mq_empty(_mq)		ml_empty(&(_mq)->mq_list)
-#define	mq_full(_mq)		(mq_len((_mq)) >= (_mq)->mq_maxlen)
-#define	mq_drops(_mq)		((_mq)->mq_drops)
-#define	mq_set_maxlen(_mq, _l)	((_mq)->mq_maxlen = (_l))
+#define mq_len(_mq)		READ_ONCE((_mq)->mq_list.ml_len)
+#define mq_empty(_mq)		(mq_len(_mq) == 0)
+#define mq_full(_mq)		(mq_len((_mq)) >= READ_ONCE((_mq)->mq_maxlen))
+#define mq_drops(_mq)		READ_ONCE((_mq)->mq_drops)
 
 #endif /* _KERNEL */
 #endif /* _SYS_MBUF_H_ */

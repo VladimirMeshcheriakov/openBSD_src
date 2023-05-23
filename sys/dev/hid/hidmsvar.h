@@ -36,8 +36,8 @@
 struct tsscale {
 	int	minx, maxx;
 	int	miny, maxy;
-	int 	minz, maxz;
-	int 	minw, maxw;
+	int minz, maxz;
+	int minw, maxw;
 	int	swapxy;
 	int	resx, resy;
 };
@@ -58,20 +58,19 @@ struct hidms {
 #define HIDMS_ERASER		0x0400   /* Eraser switch on a digitiser pen */
 #define HIDMS_MS_BAD_CLASS	0x0800	/* Mouse doesn't identify properly */
 #define HIDMS_VENDOR_BUTTONS	0x1000	/* extra buttons in vendor page */
-#define HIDMS_SEC_BARREL        0x2000    /* Secondary Barrel switch on a digitiser pen */
+#define HIDMS_SEC_BARREL	0x2000    /* Secondary Barrel switch on a digitiser pen */
 #define HIDMS_WACOM_SETUP        0xff0d /*Wacom*/
-    int        sc_num_buttons;
-    u_int32_t    sc_buttons;    /* mouse button status */
 
-    struct device    *sc_device;
-    struct device    *sc_wsmousedev;
+	int		sc_num_buttons;
+	u_int32_t	sc_buttons;	/* mouse button status */
 
-    /* Wacom */
+	struct device	*sc_device;
+	struct device	*sc_wsmousedev;
+	/* Wacom */
     int sc_num_pad_buttons;
-    u_int32_t    sc_pad_buttons; // left to right, or top to bottom
-
-    int sc_num_stylus_buttons;
-    u_int32_t    sc_stylus_buttons; // tip, barrel switch, secondary barrel switch, ... Add the others in order
+    u_int32_t    sc_pad_buttons; /* left to right, or top to bottom */
+	int sc_num_stylus_buttons;
+    u_int32_t    sc_stylus_buttons; /* tip, barrel switch, secondary barrel switch, ... Add the others in order */
 
     int sc_in_range;
     int sc_quality;
@@ -80,15 +79,14 @@ struct hidms {
     u_int32_t sc_transducer_id_high;
 
     u_int16_t    sc_tool_type;
+	/* locators */
+	struct hid_location sc_loc_x;
+	struct hid_location sc_loc_y;
+	struct hid_location sc_loc_z;
+	struct hid_location sc_loc_w;
+	struct hid_location sc_loc_btn[MAX_BUTTONS];
 
-
-    /* locators */
-    struct hid_location sc_loc_x;
-    struct hid_location sc_loc_y;
-    struct hid_location sc_loc_z; // pressure for WACOM
-    struct hid_location sc_loc_w; // distance for WACOM
-    struct hid_location sc_loc_btn[MAX_BUTTONS];
-    // For WACOM tablets
+	/* For WACOM tablets */
     struct hid_location    sc_loc_pad_btn[MAX_BUTTONS];
     struct hid_location    sc_loc_stylus_btn[MAX_BUTTONS];
 

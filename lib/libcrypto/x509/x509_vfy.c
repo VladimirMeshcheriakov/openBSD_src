@@ -1,4 +1,4 @@
-/* $OpenBSD: x509_vfy.c,v 1.120 2023/04/30 14:59:52 tb Exp $ */
+/* $OpenBSD: x509_vfy.c,v 1.123 2023/05/14 20:20:40 tb Exp $ */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
  *
@@ -144,7 +144,7 @@ static int X509_cmp_time_internal(const ASN1_TIME *ctm, time_t *cmp_time,
     int clamp_notafter);
 
 static int internal_verify(X509_STORE_CTX *ctx);
-static int get_issuer_sk(X509 **issuer, X509_STORE_CTX *ctx, X509 *x);
+static int get_trusted_issuer(X509 **issuer, X509_STORE_CTX *ctx, X509 *x);
 static int check_key_level(X509_STORE_CTX *ctx, X509 *cert);
 static int verify_cb_cert(X509_STORE_CTX *ctx, X509 *x, int depth, int err);
 
@@ -592,7 +592,6 @@ X509_verify_cert_legacy(X509_STORE_CTX *ctx)
 int
 X509_verify_cert(X509_STORE_CTX *ctx)
 {
-	STACK_OF(X509) *roots = NULL;
 	struct x509_verify_ctx *vctx = NULL;
 	int chain_count = 0;
 
@@ -656,8 +655,6 @@ X509_verify_cert(X509_STORE_CTX *ctx)
 	}
 	x509_verify_ctx_free(vctx);
 
-	sk_X509_pop_free(roots, X509_free);
-
 	/* if we succeed we have a chain in ctx->chain */
 	return (chain_count > 0 && ctx->chain != NULL);
 }
@@ -697,12 +694,12 @@ check_issued(X509_STORE_CTX *ctx, X509 *subject, X509 *issuer)
 	return X509_check_issued(issuer, subject) == X509_V_OK;
 }
 
-/* Alternative lookup method: look from a STACK stored in other_ctx */
+/* Alternative lookup method: look from a STACK stored in ctx->trusted */
 
 static int
-get_issuer_sk(X509 **issuer, X509_STORE_CTX *ctx, X509 *x)
+get_trusted_issuer(X509 **issuer, X509_STORE_CTX *ctx, X509 *x)
 {
-	*issuer = find_issuer(ctx, ctx->other_ctx, x, 1);
+	*issuer = find_issuer(ctx, ctx->trusted, x, 1);
 	if (*issuer) {
 		CRYPTO_add(&(*issuer)->references, 1, CRYPTO_LOCK_X509);
 		return 1;
@@ -2311,8 +2308,8 @@ X509_STORE_CTX_free(X509_STORE_CTX *ctx)
 LCRYPTO_ALIAS(X509_STORE_CTX_free);
 
 int
-X509_STORE_CTX_init(X509_STORE_CTX *ctx, X509_STORE *store, X509 *x509,
-    STACK_OF(X509) *chain)
+X509_STORE_CTX_init(X509_STORE_CTX *ctx, X509_STORE *store, X509 *leaf,
+    STACK_OF(X509) *untrusted)
 {
 	int param_ret = 1;
 
@@ -2340,8 +2337,8 @@ X509_STORE_CTX_init(X509_STORE_CTX *ctx, X509_STORE *store, X509 *x509,
 	 * possible even on early exits.
 	 */
 	ctx->store = store;
-	ctx->cert = x509;
-	ctx->untrusted = chain;
+	ctx->cert = leaf;
+	ctx->untrusted = untrusted;
 
 	if (store && store->verify)
 		ctx->verify = store->verify;
@@ -2437,17 +2434,17 @@ LCRYPTO_ALIAS(X509_STORE_CTX_init);
  */
 
 void
-X509_STORE_CTX_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *sk)
+X509_STORE_CTX_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *trusted)
 {
-	ctx->other_ctx = sk;
-	ctx->get_issuer = get_issuer_sk;
+	X509_STORE_CTX_set0_trusted_stack(ctx, trusted);
 }
 LCRYPTO_ALIAS(X509_STORE_CTX_trusted_stack);
 
 void
-X509_STORE_CTX_set0_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *sk)
+X509_STORE_CTX_set0_trusted_stack(X509_STORE_CTX *ctx, STACK_OF(X509) *trusted)
 {
-	X509_STORE_CTX_trusted_stack(ctx, sk);
+	ctx->trusted = trusted;
+	ctx->get_issuer = get_trusted_issuer;
 }
 LCRYPTO_ALIAS(X509_STORE_CTX_set0_trusted_stack);
 

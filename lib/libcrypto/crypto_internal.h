@@ -1,4 +1,4 @@
-/*	$OpenBSD: crypto_internal.h,v 1.3 2023/04/14 10:42:51 jsing Exp $ */
+/*	$OpenBSD: crypto_internal.h,v 1.5 2023/05/19 00:54:27 deraadt Exp $ */
 /*
  * Copyright (c) 2023 Joel Sing <jsing@openbsd.org>
  *

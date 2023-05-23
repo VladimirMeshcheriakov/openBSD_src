@@ -1,4 +1,4 @@
-;	$OpenBSD: syscalls.master,v 1.246 2023/02/25 09:55:46 mvs Exp $
+;	$OpenBSD: syscalls.master,v 1.248 2023/05/18 10:23:19 mvs Exp $
 ;	$NetBSD: syscalls.master,v 1.32 1996/04/23 10:24:21 mycroft Exp $
 
 ;	@(#)syscalls.master	8.2 (Berkeley) 1/13/94

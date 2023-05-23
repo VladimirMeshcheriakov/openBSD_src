@@ -2,7 +2,7 @@
  * THIS FILE AUTOMATICALLY GENERATED.  DO NOT EDIT.
  *
  * generated from:
- *	OpenBSD: pcidevs,v 1.2034 2023/05/01 07:24:04 dlg Exp 
+ *	OpenBSD: pcidevs,v 1.2036 2023/05/12 11:42:22 jsg Exp 
  */
 /*	$NetBSD: pcidevs,v 1.30 1997/06/24 06:20:24 thorpej Exp $	*/
 
@@ -5897,16 +5897,15 @@
 #define	PCI_PRODUCT_INTEL_DG2_G11_3	0x5695		/* Graphics */
 #define	PCI_PRODUCT_INTEL_DG2_G12_1	0x5696		/* Graphics */
 #define	PCI_PRODUCT_INTEL_DG2_G12_2	0x5697		/* Graphics */
-#define	PCI_PRODUCT_INTEL_DG2_G11_4	0x5698		/* Graphics */
 #define	PCI_PRODUCT_INTEL_DG2_G10_4	0x56a0		/* Arc A770 */
 #define	PCI_PRODUCT_INTEL_DG2_G10_5	0x56a1		/* Arc A750 */
 #define	PCI_PRODUCT_INTEL_DG2_G10_6	0x56a2		/* Arc A580 */
 #define	PCI_PRODUCT_INTEL_DG2_G12_3	0x56a3		/* Graphics */
 #define	PCI_PRODUCT_INTEL_DG2_G12_4	0x56a4		/* Graphics */
-#define	PCI_PRODUCT_INTEL_DG2_G11_5	0x56a5		/* Arc A380 */
-#define	PCI_PRODUCT_INTEL_DG2_G11_6	0x56a6		/* Arc A310 */
-#define	PCI_PRODUCT_INTEL_DG2_G11_7	0x56b0		/* Arc Pro A30M */
-#define	PCI_PRODUCT_INTEL_DG2_G11_8	0x56b1		/* Arc Pro A40/A50 */
+#define	PCI_PRODUCT_INTEL_DG2_G11_4	0x56a5		/* Arc A380 */
+#define	PCI_PRODUCT_INTEL_DG2_G11_5	0x56a6		/* Arc A310 */
+#define	PCI_PRODUCT_INTEL_DG2_G11_6	0x56b0		/* Arc Pro A30M */
+#define	PCI_PRODUCT_INTEL_DG2_G11_7	0x56b1		/* Arc Pro A40/A50 */
 #define	PCI_PRODUCT_INTEL_DG2_G12_5	0x56b2		/* Graphics */
 #define	PCI_PRODUCT_INTEL_DG2_G12_6	0x56b3		/* Graphics */
 #define	PCI_PRODUCT_INTEL_ATS_M150	0x56c0		/* Flex 170 */
@@ -7068,6 +7067,7 @@
 
 /* Lenovo products */
 #define	PCI_PRODUCT_LENOVO_NVME	0x0003		/* NVMe */
+#define	PCI_PRODUCT_LENOVO_NVME_2	0x0006		/* NVMe */
 
 /* Level 1 (Intel) */
 #define	PCI_PRODUCT_LEVEL1_LXT1001	0x0001		/* LXT1001 */

@@ -1,5 +1,5 @@
 # ex:ts=8 sw=4:
-# $OpenBSD: OldLibs.pm,v 1.13 2022/04/27 15:04:11 espie Exp $
+# $OpenBSD: OldLibs.pm,v 1.15 2023/05/21 16:07:35 espie Exp $
 #
 # Copyright (c) 2004-2010 Marc Espie <espie@openbsd.org>
 #
@@ -154,7 +154,7 @@ sub split_some_libs
 	my $c1 = {};
 	my $c2 = {};
 	$plist->separate_element($libs, $c1, $c2);
-	my $p1 = OpenBSD::PackingList::OldLibs->new;
+	my $p1 = OpenBSD::PackingList->new;
 	$p1->set_infodir($plist->infodir);
 	$plist->special_deep_copy($p1, $c1, {});
 	my $p2 = $plist->make_shallow_copy($c2);
@@ -214,9 +214,8 @@ sub do_save_libs
 
 
 	if ($state->{not}) {
-		require OpenBSD::SharedLibs;
 
-		OpenBSD::SharedLibs::add_libs_from_plist($stub_list, $state);
+		$state->shlibs->add_libs_from_plist($stub_list);
 		$stub_list->to_cache;
 		$o->plist->to_cache;
 	} else {
